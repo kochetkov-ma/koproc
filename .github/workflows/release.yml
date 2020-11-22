@@ -1,0 +1,39 @@
+name: Make Release / Publish to OSS / Promote to Maven Central
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: olegtarasov/get-tag@v2
+        id: tagName
+        with:
+          tagRegex: "v(.+)"
+          tagRegexGroup: 1
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      - name: Print information
+        run: echo Head_ref = ${{ github.head_ref }}. Version = $GIT_TAG_NAME
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+          java-package: jdk
+          architecture: x64
+      - name: Build / Upload to OSS sonatype / Promote to Maven Central
+        uses: eskatos/gradle-command-action@v1
+        with:
+          gradle-version: current
+          arguments: '--info --stacktrace -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}"
+        -Pversion=$GIT_TAG_NAME
+        -Psigning.password=${{ secrets.GPG_SIGNING_PASSWORD }}
+        -PossrhUsername=kochetkov-ma
+        -PossrhPassword=${{ secrets.ossrhPassword }}
+        -x test
+        uploadArchives
+        closeAndReleaseRepository'

@@ -1,0 +1,47 @@
+plugins {
+    id 'idea'
+    id 'signing'
+    id 'maven'
+
+    id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}"
+    id 'io.codearte.nexus-staging' version "$nexusStagingPluginVersion"
+    id 'com.github.ben-manes.versions' version "$benManesPluginVersion"
+}
+
+group 'ru.iopump.koproc'
+
+apply from: "$rootDir/gradle/publishing.gradle"
+
+idea { module { downloadJavadoc = true; downloadSources = true } }
+
+wrapper {
+    gradleVersion = "$wrapperVersion"
+    distributionType = Wrapper.DistributionType.ALL
+    doLast { delete "$projectDir/gradlew.bat", "$projectDir/gradlew" }
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.suppressWarnings = true
+}
+
+test {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation Deps.kotlin.reflect
+    implementation Deps.common.apacheIo
+    implementation Deps.logger.slf4j
+    runtimeOnly(Deps.logger.logback) { Deps.logger.excludes.each { exclude group: it } }
+
+    testImplementation(Deps.kotest.junit5) { Deps.kotest.excludes.each { exclude group: it } }
+    testImplementation(Deps.kotest.assertionsCore) { Deps.kotest.excludes.each { exclude group: it } }
+}
