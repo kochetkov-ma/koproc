@@ -36,7 +36,7 @@ jobs:
           arguments: |
             --info --stacktrace -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}"
             --no-daemon
-            -Pversion=$GIT_TAG_NAME
+            -Pversion=${{ env.GIT_TAG_NAME }}
             -Psigning.password=${{ secrets.GPG_SIGNING_PASSWORD }}
             -PossrhUsername=kochetkov-ma
             -PossrhPassword=${{ secrets.ossrhPassword }}
@@ -48,7 +48,7 @@ jobs:
           arguments: |
             --info --stacktrace -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}"
             --no-daemon
-            -Pversion=$GIT_TAG_NAME
+            -Pversion=${{ env.GIT_TAG_NAME }}
             -Psigning.password=${{ secrets.GPG_SIGNING_PASSWORD }}
             -PossrhUsername=kochetkov-ma
             -PossrhPassword=${{ secrets.ossrhPassword }}
