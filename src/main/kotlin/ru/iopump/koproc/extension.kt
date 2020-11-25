@@ -1,8 +1,9 @@
 package ru.iopump.koproc
 
-import mu.KotlinLogging
+import org.slf4j.LoggerFactory
 
-private val log = KotlinLogging.logger {}
+private val log = LoggerFactory.getLogger("koproc")
+
 
 /**
  * Start [this] command via [ProcessBuilder] and provide [KprocCall] which in turn returns [KoprocResult].
@@ -20,7 +21,7 @@ fun String.startProcess(config: KoprocConfig.() -> Unit = { KoprocConfig(3600) }
     return runCatching { processBuilder.start() }
         .map { startedProcess -> KprocCall(this, startedProcess, cfg) }
         .getOrElse { throwable -> KprocCall(this, FailedProcess(throwable), cfg) }
-        .also { log.debug { "[KOPROC] Process started. $it" } }
+        .also { log.debug("Process started. Info: $it") }
 }
 
 /**

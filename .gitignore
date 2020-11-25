@@ -36,3 +36,6 @@ build/
 tmp/
 logs/
 libs/
+
+# Excludes
+!koproc-sample.jar

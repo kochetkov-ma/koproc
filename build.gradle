@@ -1,0 +1,35 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}"
+}
+
+wrapper {
+    gradleVersion = project.property("wrapper.version") as String
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions.suppressWarnings = true
+    kotlinOptions.jvmTarget = "11"
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
+test {
+    useJUnitPlatform()
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation(Deps.logger.slf4j)
+    runtimeOnly(Deps.logger.logback) { Deps.logger.excludes.each { exclude group: it } }
+    implementation(Deps.kotlin.reflect)
+    implementation(Deps.kotlin.reflect)
+    implementation Deps.common.apacheIo
+
+    testImplementation(Deps.kotest.junit5) { Deps.kotest.excludes.each { exclude group: it } }
+    testImplementation(Deps.kotest.assertionsCore) { Deps.kotest.excludes.each { exclude group: it } }
+}
