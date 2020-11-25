@@ -67,7 +67,7 @@ class ExtensionKtIT : StringSpec() {
         "Shell or Cmd should print dirs" {
             val os = System.getProperty("os.name").toLowerCase()
             val cmd = if (os.contains("win")) Paths.get(this::class.java.getResource("/cmd.bat").toURI())
-            else Paths.get(this::class.java.getResource("/cmd.sh").toURI())
+            else "pwd"
 
             val koproc = "$cmd".startCommand { timeoutSec = 5 }
 
