@@ -26,7 +26,7 @@ jobs:
           java-version: '11'
           java-package: jdk
           architecture: x64
-      - name: Build / Upload to OSS sonatype
+      - name: Build / Upload to OSS sonatype / Promote to Maven Central
         uses: eskatos/gradle-command-action@v1
         with:
           wrapper-cache-enabled: false
@@ -41,15 +41,3 @@ jobs:
             -PossrhUsername=kochetkov-ma
             -PossrhPassword=${{ secrets.ossrhPassword }}
             build uploadArchives closeAndReleaseRepository
-      - name: Promote to Maven Central
-        uses: eskatos/gradle-command-action@v1
-        with:
-          gradle-version: 6.7.1
-          arguments: |
-            --info --stacktrace -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}"
-            --no-daemon
-            -Pversion=${{ env.GIT_TAG_NAME }}
-            -Psigning.password=${{ secrets.GPG_SIGNING_PASSWORD }}
-            -PossrhUsername=kochetkov-ma
-            -PossrhPassword=${{ secrets.ossrhPassword }}
-            closeAndReleaseRepository
