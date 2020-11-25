@@ -3,7 +3,7 @@ plugins {
 }
 
 wrapper {
-    gradleVersion = project.property("wrapper.version") as String
+    gradleVersion = "$wrapperVersion"
     distributionType = Wrapper.DistributionType.ALL
 }
 
@@ -24,11 +24,10 @@ repositories {
 }
 
 dependencies {
-    implementation(Deps.logger.slf4j)
-    runtimeOnly(Deps.logger.logback) { Deps.logger.excludes.each { exclude group: it } }
-    implementation(Deps.kotlin.reflect)
-    implementation(Deps.kotlin.reflect)
+    implementation Deps.kotlin.reflect
     implementation Deps.common.apacheIo
+    implementation Deps.logger.slf4j
+    runtimeOnly(Deps.logger.logback) { Deps.logger.excludes.each { exclude group: it } }
 
     testImplementation(Deps.kotest.junit5) { Deps.kotest.excludes.each { exclude group: it } }
     testImplementation(Deps.kotest.assertionsCore) { Deps.kotest.excludes.each { exclude group: it } }
