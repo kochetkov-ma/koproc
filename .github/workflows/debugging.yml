@@ -1,0 +1,20 @@
+name: Make Release / Publish to OSS / Promote to Maven Central
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: olegtarasov/get-tag@v2
+        id: tagName
+        with:
+          tagRegex: "v(.+)"
+          tagRegexGroup: 1
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      - name: Print information
+        run: echo Head_ref = ${{ github.head_ref }}. Version = $GIT_TAG_NAME
