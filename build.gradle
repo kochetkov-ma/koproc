@@ -1,17 +1,30 @@
 plugins {
+    id 'idea'
+    id 'signing'
+    id 'maven'
+
     id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}"
+    id 'io.codearte.nexus-staging' version "$nexusStagingPluginVersion"
+    id 'com.github.ben-manes.versions' version "$benManesPluginVersion"
 }
+
+group 'ru.iopump.koproc'
+
+apply from: "$rootDir/gradle/publishing.gradle"
+
+idea { module { downloadJavadoc = true; downloadSources = true } }
 
 wrapper {
     gradleVersion = "$wrapperVersion"
     distributionType = Wrapper.DistributionType.ALL
+    doLast { delete "$projectDir/gradlew.bat", "$projectDir/gradlew" }
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-    kotlinOptions.suppressWarnings = true
-    kotlinOptions.jvmTarget = "11"
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+    kotlinOptions.suppressWarnings = true
 }
 
 test {

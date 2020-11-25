@@ -1,0 +1,18 @@
+name: Debug actions
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: olegtarasov/get-tag@v2
+        id: tagName
+        with:
+          tagRegex: "v(.+)"
+          tagRegexGroup: 1
+      - name: Print information
+        run: "echo CI information: ${{ github.head_ref }}. Release: $GIT_TAG_NAME"
