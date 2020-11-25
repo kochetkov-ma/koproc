@@ -30,11 +30,10 @@ jobs:
         uses: eskatos/gradle-command-action@v1
         with:
           gradle-version: current
-          arguments: '--info --stacktrace -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}"
-        -Pversion=$GIT_TAG_NAME
-        -Psigning.password=${{ secrets.GPG_SIGNING_PASSWORD }}
-        -PossrhUsername=kochetkov-ma
-        -PossrhPassword=${{ secrets.ossrhPassword }}
-        test
-        uploadArchives
-        closeAndReleaseRepository'
+          arguments: |
+            --info --stacktrace -Psigning.key="${{ secrets.GPG_SIGNING_KEY }}"
+            -Pversion=$GIT_TAG_NAME
+            -Psigning.password=${{ secrets.GPG_SIGNING_PASSWORD }}
+            -PossrhUsername=kochetkov-ma
+            -PossrhPassword=${{ secrets.ossrhPassword }}
+            build uploadArchives closeAndReleaseRepository
