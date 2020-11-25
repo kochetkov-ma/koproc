@@ -1,6 +1,9 @@
 package ru.iopump.koproc
 
+import org.apache.commons.io.input.NullInputStream
 import org.apache.commons.io.input.TeeInputStream
+import org.apache.commons.io.output.NullOutputStream
+import org.apache.commons.io.output.NullOutputStream.NULL_OUTPUT_STREAM
 import org.apache.commons.io.output.TeeOutputStream
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
@@ -44,10 +47,10 @@ data class KprocCall(
 
     init {
         val teeOutOut = TeeOutputStream(outCurrent, out)
-        teeOutIn = TeeInputStream(process.inputStream, teeOutOut, true)
+        teeOutIn = TeeInputStream(process.inputStream ?: NullInputStream(), teeOutOut, true)
 
         val teeErrOutOut = TeeOutputStream(errOutCurrent, errOut)
-        teeErrOutIn = TeeInputStream(process.errorStream, teeErrOutOut, true)
+        teeErrOutIn = TeeInputStream(process.errorStream ?: NullInputStream(), teeErrOutOut, true)
     }
 
     /**
@@ -164,11 +167,11 @@ data class KprocCall(
 
 internal open class FinishedProcess(private val code: Int) : Process() {
 
-    override fun getOutputStream() = null
+    override fun getOutputStream(): NullOutputStream = NULL_OUTPUT_STREAM
 
-    override fun getInputStream() = null
+    override fun getInputStream() = NullInputStream()
 
-    override fun getErrorStream() = null
+    override fun getErrorStream() = NullInputStream()
 
     override fun waitFor() = exitValue()
 
@@ -177,6 +180,14 @@ internal open class FinishedProcess(private val code: Int) : Process() {
     override fun destroy() {}
 
     override fun pid() = -1L
+
+    override fun toString(): String {
+        return "FinishedProcess(code=$code)"
+    }
 }
 
-internal class FailedProcess(val throwable: Throwable) : FinishedProcess(1)
+internal class FailedProcess(val throwable: Throwable) : FinishedProcess(1) {
+    override fun toString(): String {
+        return "FailedProcess(throwable=$throwable, code=${exitValue()})"
+    }
+}

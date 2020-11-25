@@ -60,7 +60,7 @@ class ExtensionKtIT : StringSpec() {
             koproc.asClue {
                 it.code shouldBe 0
                 it.error.shouldBeNull()
-                (it.out + it.errorOut).shouldContain("java version") // Java may print to out or err
+                (it.out + it.errorOut).shouldContain("version") // Java may print to out or err
             }
         }
 
@@ -76,6 +76,12 @@ class ExtensionKtIT : StringSpec() {
                 it.error.shouldBeNull()
                 it.out.shouldNotBeBlank()
                 it.errorOut.shouldBeBlank()
+            }
+        }
+
+        "Fail start process" {
+            assertThrows<RuntimeException> {
+                "error".startCommand().throwOnAnyFailure()
             }
         }
     }
