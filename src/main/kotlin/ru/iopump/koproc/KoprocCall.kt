@@ -8,7 +8,6 @@ import org.apache.commons.io.output.TeeOutputStream
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayOutputStream
 import java.io.Closeable
-import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -21,8 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * - get [process] and use its Java API
  * - process 'out' and 'errOut' will be multiplied and also provided via [readAvailableOut] and [readAvailableErrOut] during process executing.
  */
-@Suppress("MemberVisibilityCanBePrivate")
-data class KprocCall(
+data class KoprocCall(
     val command: String,
     val process: Process,
     val config: KoprocConfig,
@@ -61,7 +59,7 @@ data class KprocCall(
     val readAvailableOut: String
         get() {
             read()
-            return outCurrent.toString(StandardCharsets.UTF_8)
+            return outCurrent.toString(config.charset)
         }
 
     /**
@@ -72,7 +70,7 @@ data class KprocCall(
     val readAvailableErrOut: String
         get() {
             read()
-            return errOutCurrent.toString(StandardCharsets.UTF_8)
+            return errOutCurrent.toString(config.charset)
         }
 
     /**
@@ -80,7 +78,7 @@ data class KprocCall(
      *
      * Call [Process.waitFor] and return result as [KoprocResult].
      * Save result in lazy property.
-     * After execution you should use [KoprocResult] and leave this [KprocCall] for GC.
+     * After execution you should use [KoprocResult] and leave this [KoprocCall] for GC.
      * It has side effect on source [Process.getInputStream] and [Process.getErrorStream]
      */
     val result by lazy { waitResult(config.timeoutSec) }
@@ -89,7 +87,7 @@ data class KprocCall(
      * Blocking function.
      *
      * Call [Process.waitFor] and write result to [KoprocResult].
-     * After execution you should use [KoprocResult] and leave this [KprocCall] for GC.
+     * After execution you should use [KoprocResult] and leave this [KoprocCall] for GC.
      * This function doesn't respect to [Process] state and can be executed again with process in illegal state.
      * To avoid errors prefer [result] lazy property.
      * It has side effect on source [Process.getInputStream] and [Process.getErrorStream]
@@ -100,7 +98,7 @@ data class KprocCall(
         .mapCatching { prc ->
             read(true)
             KoprocResult(
-                this,
+                command,
                 prc.exitValue(),
                 outOnClose ?: "",
                 errOutOnClose ?: "",
@@ -110,8 +108,8 @@ data class KprocCall(
         }.getOrElse { throwable ->
             read(true)
             KoprocResult(
-                this,
-                process.exitValue(),
+                command,
+                1,
                 outOnClose ?: "",
                 errOutOnClose ?: "",
                 process.pid(),
@@ -124,16 +122,16 @@ data class KprocCall(
 
     /**
      * Call [Process.destroyForcibly] and [Process.destroy].
-     * Close all internal [KprocCall] streams and cached 'out' and 'errOut'.
+     * Close all internal [KoprocCall] streams and cached 'out' and 'errOut'.
      * It has side effect on source [Process.getInputStream] and [Process.getErrorStream]
      */
     override fun close() {
         runCatching {
             process.destroyForcibly().destroy()
 
-            outOnClose = out.toString(StandardCharsets.UTF_8) // Copy to String cache before close
+            outOnClose = out.toString(config.charset) // Copy to String cache before close
             out.close()
-            errOutOnClose = errOut.toString(StandardCharsets.UTF_8) // Copy to String cache before close
+            errOutOnClose = errOut.toString(config.charset) // Copy to String cache before close
             errOut.close()
 
             outCurrent.close()
@@ -156,8 +154,8 @@ data class KprocCall(
                 teeOutIn.readNBytes(teeOutIn.available())
                 teeErrOutIn.readNBytes(teeErrOutIn.available())
                 if (cached) {
-                    outOnClose = out.toString(StandardCharsets.UTF_8)
-                    errOutOnClose = errOut.toString(StandardCharsets.UTF_8)
+                    outOnClose = out.toString(config.charset)
+                    errOutOnClose = errOut.toString(config.charset)
                 }
             }
         }

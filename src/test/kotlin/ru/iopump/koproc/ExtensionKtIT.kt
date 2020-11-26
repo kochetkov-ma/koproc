@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeBlank
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeBlank
+import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
@@ -18,19 +19,19 @@ import java.nio.file.Paths
 @Suppress("BlockingMethodInNonBlockingContext")
 class ExtensionKtIT : StringSpec() {
 
+
     private companion object {
         private val log = LoggerFactory.getLogger("koproc")
     }
 
     init {
-
         "Java process should started by 'startProcess', provide http access and stopped by 'close' method" {
             val jarPath = Paths.get(this::class.java.getResource("/koproc-sample.jar").toURI())
             val jarAccessUrl = URL("http://localhost:8000/test")
             val koproc = "java -jar $jarPath".startProcess { timeoutSec = 5 }
 
             koproc.use {
-                delay(1000)
+                delay(500)
 
                 log.info("[TEST] Call: $it")
 
@@ -50,6 +51,22 @@ class ExtensionKtIT : StringSpec() {
 
             koproc.result.out.shouldNotBeBlank()
             log.info("[TEST] Result: ${koproc.result}")
+        }
+
+        "Java process should started by 'startProcess' and closed after timeout with the 'KoprocResult'" {
+            val jarPath = Paths.get(this::class.java.getResource("/koproc-sample.jar").toURI())
+            val koproc = "java -jar $jarPath".startProcess { timeoutSec = 1 }
+
+            koproc.use { call ->
+                delay(500)
+                log.info("[TEST] Result: ${call.result}")
+                call.result.asClue {
+                    it.code shouldBe 1
+                    it.error.shouldNotBeInstanceOf<IllegalThreadStateException>()
+                    it.out.shouldNotBeBlank()
+                    it.errorOut.shouldBeBlank()
+                }
+            }
         }
 
         "Java should display version by 'startCommand' with exit code 0" {
@@ -82,6 +99,25 @@ class ExtensionKtIT : StringSpec() {
         "Fail start process" {
             assertThrows<RuntimeException> {
                 "error".startCommand().throwOnAnyFailure()
+            }
+        }
+
+        "Closing after success execution and get the result after closing" {
+            val koproc = "java -version".startProcess { timeoutSec = 5 }
+
+            koproc.use {
+                it.waitResult()
+            }
+
+            koproc.result.asClue {
+                it.code shouldBe 0
+                it.out.shouldBeBlank()
+                it.errorOut.shouldNotBeBlank()
+                it.error.shouldBeNull()
+
+                it.throwOnUnSuccessCode()
+                it.throwOnError()
+                it.throwOnAnyFailure()
             }
         }
     }

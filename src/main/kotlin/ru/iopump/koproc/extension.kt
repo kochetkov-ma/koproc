@@ -4,13 +4,26 @@ import org.slf4j.LoggerFactory
 
 private val log = LoggerFactory.getLogger("koproc")
 
+/**
+ * Mutable default timeout for [startProcess]
+ *
+ * Default: 60 sec.
+ */
+var koprocDefaultStartProcessTimeoutSec = 60L
 
 /**
- * Start [this] command via [ProcessBuilder] and provide [KprocCall] which in turn returns [KoprocResult].
+ * Mutable default timeout for [startCommand]
  *
- * @return [KprocCall]
+ * Default: 10 sec.
  */
-fun String.startProcess(config: KoprocConfig.() -> Unit = { KoprocConfig(3600) }): KprocCall {
+var koprocDefaultStartCommandTimeoutSec = 10L
+
+/**
+ * Start [this] command via [ProcessBuilder] and provide [KoprocCall] which in turn returns [KoprocResult].
+ *
+ * @return [KoprocCall]
+ */
+fun String.startProcess(config: KoprocConfig.() -> Unit = { KoprocConfig(koprocDefaultStartProcessTimeoutSec) }): KoprocCall {
     val cfg = KoprocConfig().apply(config)
 
     val processBuilder = ProcessBuilder(*this.split.toTypedArray())
@@ -19,8 +32,8 @@ fun String.startProcess(config: KoprocConfig.() -> Unit = { KoprocConfig(3600) }
         .redirectError(ProcessBuilder.Redirect.PIPE)
 
     return runCatching { processBuilder.start() }
-        .map { startedProcess -> KprocCall(this, startedProcess, cfg) }
-        .getOrElse { throwable -> KprocCall(this, FailedProcess(throwable), cfg) }
+        .map { startedProcess -> KoprocCall(this, startedProcess, cfg) }
+        .getOrElse { throwable -> KoprocCall(this, FailedProcess(throwable), cfg) }
         .also { log.debug("Process started. Info: $it") }
 }
 
@@ -29,7 +42,8 @@ fun String.startProcess(config: KoprocConfig.() -> Unit = { KoprocConfig(3600) }
  *
  * @return [KoprocResult]
  */
-fun String.startCommand(config: KoprocConfig.() -> Unit = { KoprocConfig(10) }): KoprocResult = this.startProcess(config).result
+fun String.startCommand(config: KoprocConfig.() -> Unit = { KoprocConfig(koprocDefaultStartCommandTimeoutSec) }): KoprocResult =
+    this.startProcess(config).result
 
 private val String.split
     get() = this.split("\\s".toRegex())

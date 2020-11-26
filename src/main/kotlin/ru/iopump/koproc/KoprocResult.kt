@@ -1,7 +1,7 @@
 package ru.iopump.koproc
 
 data class KoprocResult(
-    val call: KprocCall,
+    val command: String,
     val code: Int,
     val out: String,
     val errorOut: String,
@@ -69,6 +69,6 @@ data class KoprocResult(
     }
 
     override fun toString(): String {
-        return "[code=$code] [pid=$pid] '${call.command}'\nout='$out'\nerrorOut='$errorOut'\nerror=$error"
+        return "[code=$code] [pid=$pid] '$command'\nout='$out'\nerrorOut='$errorOut'\nerror=$error"
     }
 }
