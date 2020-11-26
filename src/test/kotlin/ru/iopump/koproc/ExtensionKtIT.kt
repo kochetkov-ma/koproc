@@ -120,5 +120,14 @@ class ExtensionKtIT : StringSpec() {
                 it.throwOnAnyFailure()
             }
         }
+
+        "Default timeout [bug in 1.1.0]" {
+            koprocDefaultStartCommandTimeoutSec = 1
+            val jarPath = Paths.get(this::class.java.getResource("/koproc-sample.jar").toURI())
+            "java -jar $jarPath".startCommand()
+
+            koprocDefaultStartProcessTimeoutSec = 1
+            "java -jar $jarPath".startProcess().result
+        }
     }
 }

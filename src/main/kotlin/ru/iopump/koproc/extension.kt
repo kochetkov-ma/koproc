@@ -23,7 +23,7 @@ var koprocDefaultStartCommandTimeoutSec = 10L
  *
  * @return [KoprocCall]
  */
-fun String.startProcess(config: KoprocConfig.() -> Unit = { KoprocConfig(koprocDefaultStartProcessTimeoutSec) }): KoprocCall {
+fun String.startProcess(config: KoprocConfig.() -> Unit = { timeoutSec = koprocDefaultStartProcessTimeoutSec }): KoprocCall {
     val cfg = KoprocConfig().apply(config)
 
     val processBuilder = ProcessBuilder(*this.split.toTypedArray())
@@ -42,7 +42,7 @@ fun String.startProcess(config: KoprocConfig.() -> Unit = { KoprocConfig(koprocD
  *
  * @return [KoprocResult]
  */
-fun String.startCommand(config: KoprocConfig.() -> Unit = { KoprocConfig(koprocDefaultStartCommandTimeoutSec) }): KoprocResult =
+fun String.startCommand(config: KoprocConfig.() -> Unit = { timeoutSec = koprocDefaultStartCommandTimeoutSec }): KoprocResult =
     this.startProcess(config).result
 
 private val String.split
