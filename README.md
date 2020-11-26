@@ -20,7 +20,7 @@ Gradle Groovy Dsl:
 ```groovy
 dependencies {
     /** KoProc */
-    implementation "ru.iopump.koproc:koproc:1.1.1" // or previous 1.1.0
+    implementation "ru.iopump.koproc:koproc:1.1.1"
 }
 ```
 
@@ -29,7 +29,7 @@ Gradle Kotlin Dsl:
 ```kotlin
 dependencies {
     /** KoProc */
-    implementation("ru.iopump.koproc:koproc:1.1.1") // or previous 1.1.0
+    implementation("ru.iopump.koproc:koproc:1.1.1")
 }
 ```
 
@@ -85,3 +85,6 @@ init {
     ru.iopump.koproc.koprocDefaultStartProcessTimeoutSec = 3600L
 }
 ```
+
+## Examples
+There is a [sample project link](https://github.com/kochetkov-ma/pump-samples/tree/master/koproc-sample) using koproc
