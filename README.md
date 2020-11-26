@@ -9,6 +9,8 @@ koproc
 
 Small lib to execute process and run commands in `Kotlin` style.
 
+Based on `Java ProcessBuilder API`
+
 ## Get Started
 
 ### Add dependencies
