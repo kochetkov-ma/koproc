@@ -7,7 +7,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeBlank
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeBlank
-import io.kotest.matchers.types.shouldNotBeInstanceOf
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.delay
 import org.junit.jupiter.api.assertThrows
 import org.slf4j.LoggerFactory
@@ -62,7 +62,7 @@ class ExtensionKtIT : StringSpec() {
                 log.info("[TEST] Result: ${call.result}")
                 call.result.asClue {
                     it.code shouldBe 1
-                    it.error.shouldNotBeInstanceOf<IllegalThreadStateException>()
+                    it.error.shouldBeInstanceOf<IllegalThreadStateException>()
                     it.out.shouldNotBeBlank()
                     it.errorOut.shouldBeBlank()
                 }
