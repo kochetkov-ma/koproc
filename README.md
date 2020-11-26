@@ -20,7 +20,7 @@ Gradle Groovy Dsl:
 ```groovy
 dependencies {
     /** KoProc */
-    implementation "ru.iopump:koproc:<version>"
+    implementation "ru.iopump.koproc:koproc:1.1.0"
 }
 ```
 
@@ -29,7 +29,7 @@ Gradle Kotlin Dsl:
 ```kotlin
 dependencies {
     /** KoProc */
-    implementation("ru.iopump:koproc:<version>")
+    implementation("ru.iopump.koproc:koproc:1.1.0")
 }
 ```
 
